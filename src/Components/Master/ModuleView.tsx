@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Table, Button, Form } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import TopBar from "../Common/Topbar";
@@ -19,12 +19,6 @@ interface ModuleData {
   status: string;
   noOfdropdown: number;
 }
-
-// ✅ Map slug to actual numeric ID
-// const slugToIdMap: Record<string, string> = {
-//   "app-admin": "1",
-//   students: "2",
-// };
 
 const ModuleView = () => {
   const { pipelineId } = useParams();

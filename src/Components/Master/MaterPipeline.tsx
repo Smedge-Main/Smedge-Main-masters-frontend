@@ -8,7 +8,7 @@ import MasterNav from "./MasterNav";
 import "./MaterPipeline.css";
 
 // import axios from "axios";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 
 // PipelineItem interface defined outside to reuse
 interface CreatePipelineItem {

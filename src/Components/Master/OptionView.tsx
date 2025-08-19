@@ -3,7 +3,7 @@ import { Button, Spinner } from "react-bootstrap";
 import "./OptionView.css";
 import { useNavigate } from "react-router-dom";
 import ModalWrapper from "../Common/ModalWrapper";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 
