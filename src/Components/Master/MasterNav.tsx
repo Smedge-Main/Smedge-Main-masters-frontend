@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import './MasterNavbar.css';
-import MasterPipeline from './MaterPipeline';
+import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import "./MasterNavbar.css";
 
 const MasterNavbar: React.FC = () => {
   const navigate = useNavigate();
@@ -9,17 +8,17 @@ const MasterNavbar: React.FC = () => {
   const [activePath, setActivePath] = useState(location.pathname);
 
   const menuItems = [
-    { label: 'Analytics', path: '/settings/analytics' },
-    { label: 'Course Settings', path: '/settings/course-settings' },
-    { label: 'Masters', path: '/master-pipeline' }, // stays on same page
+    { label: "Analytics", path: "#" },
+    { label: "Course Settings", path: "#" },
+    { label: "Masters", path: "/master-pipeline" }, // stays on same page
   ];
 
   const handleClick = (item: { label: string; path: string }) => {
-    if (item.path !== '#') {
+    if (item.path !== "#") {
       navigate(item.path);
       setActivePath(item.path);
     } else {
-      setActivePath('masters'); // custom for staying on same page
+      setActivePath("masters"); // custom for staying on same page
     }
   };
 
@@ -27,7 +26,7 @@ const MasterNavbar: React.FC = () => {
     <div className="master-navbar p-3">
       <div
         className="mb-3 cursor-pointer text-muted"
-        onClick={() => navigate('/dashboard')}
+        onClick={() => navigate("/dashboard")}
       >
         ← Dashboard
       </div>
@@ -36,12 +35,13 @@ const MasterNavbar: React.FC = () => {
       <ul className="list-unstyled">
         {menuItems.map((item) => {
           const isActive =
-            activePath === item.path || (item.label === 'Masters' && activePath === 'masters');
+            activePath === item.path ||
+            (item.label === "Masters" && activePath === "masters");
 
           return (
             <li
               key={item.label}
-              className={`sidebar-link py-2 px-3 ${isActive ? 'active' : ''}`}
+              className={`sidebar-link py-2 px-3 ${isActive ? "active" : ""}`}
               onClick={() => handleClick(item)}
             >
               {item.label}

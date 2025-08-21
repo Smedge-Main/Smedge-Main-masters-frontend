@@ -8,6 +8,7 @@ import MasterNav from "./MasterNav";
 import { FaChevronRight, FaEdit } from "react-icons/fa";
 import { FaArrowRight } from "react-icons/fa";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 interface ModuleData {
   _id: string;
@@ -16,7 +17,7 @@ interface ModuleData {
   createdon: string;
   createdBy?: string;
   updatedAt?: string;
-  status: string;
+  // status: string;
   noOfdropdown: number;
 }
 
@@ -34,7 +35,7 @@ const ModuleView = () => {
   const [newModule, setNewModule] = useState({
     pipeline: "",
     name: "",
-    status: "Active",
+    // status: "Active",
     noOfdropdown: 0,
   });
 
@@ -98,21 +99,21 @@ const ModuleView = () => {
       setEditedName("");
     } catch (err) {
       console.error("Error updating module:", err);
-      alert("Failed to update module name");
+      toast.error("Failed to update module name");
     }
   };
 
   const handleSaveModule = async () => {
-    if (!newModule.pipeline || !newModule.name || !newModule.status) {
-      alert("Please fill all fields"); // validation-ku leave panirunga
+    if (!newModule.name) {
+      toast.error("Please Enter Module name"); // validation-ku leave panirunga
       return;
     }
 
     try {
       // Send POST request to backend
-      const res = await axios.post(`/api/module/${newModule.pipeline}`, {
+      const res = await axios.post(`/api/module/${pipelineId}`, {
         name: newModule.name,
-        status: newModule.status,
+        // status: newModule.status,
         dropdowns: newModule.noOfdropdown,
         createdBy: "Admin",
       });
@@ -125,14 +126,15 @@ const ModuleView = () => {
       setNewModule({
         pipeline: "",
         name: "",
-        status: "Active",
+        // status: "Active",
         noOfdropdown: 0,
       });
+      toast.success("Module created Successully");
 
       // ✅ Removed success alert
     } catch (err) {
       console.error("Error creating module:", err);
-      alert("Failed to create module"); // error-ku keep pannunga
+      // alert("Failed to create module");
     }
   };
 
@@ -142,8 +144,8 @@ const ModuleView = () => {
       <MainNav />
       <div className="layout-wrapper d-flex flex-nowrap">
         <MasterNav />
-        <div className="content-wrapper">
-          <div className="p-2 w-100">
+        <div className="content-wrapper p-3 w-100">
+          <div className="col-12 field">
             <div className="d-flex align-items-center justify-content-between mb-3">
               <h5 className="p-2 fw-bold mb-0 d-flex align-items-center">
                 <FaChevronRight className="me-2" />
@@ -167,20 +169,22 @@ const ModuleView = () => {
                 <h6 className="mb-3 fw-bold">Create Module</h6>
                 <div className="d-flex flex-wrap gap-3 align-items-center">
                   {/* Pipeline Dropdown */}
-                  <Form.Select
+                  {/* <Form.Select
                     value={newModule.pipeline}
                     onChange={(e) =>
                       setNewModule({ ...newModule, pipeline: e.target.value })
                     }
                     style={{ width: "250px", height: "45px" }}
                   >
-                    <option value="">Choose Pipeline</option>
+                    <option value="" disabled hidden>
+                      Choose Pipeline
+                    </option>
                     {pipelineData.map((p) => (
                       <option key={p._id} value={p._id.toString()}>
                         {p.name}
                       </option>
                     ))}
-                  </Form.Select>
+                  </Form.Select> */}
 
                   {/* Module Name Input */}
                   <Form.Control
@@ -195,7 +199,7 @@ const ModuleView = () => {
                   />
 
                   {/* Status Dropdown */}
-                  <Form.Select
+                  {/* <Form.Select
                     name="status"
                     value={newModule.status}
                     onChange={(e) =>
@@ -205,7 +209,7 @@ const ModuleView = () => {
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
-                  </Form.Select>
+                  </Form.Select> */}
 
                   {/* Save Button */}
                   <Button variant="primary" onClick={handleSaveModule}>
@@ -217,22 +221,25 @@ const ModuleView = () => {
           </div>
 
           <div className="table-responsive">
-            <Table hover className="module-view align-middle text-center">
+            <Table hover className="module-view align-middle">
               <thead className="text-white" style={{ backgroundColor: "blue" }}>
-                <tr className="table-header-row">
-                  <th>S.No</th>
-                  <th>Module Name</th>
+                <tr className="table-header-row text-center">
+                  <th style={{ width: "60px" }}>S.No</th>
+                  <th style={{ textAlign: "left", paddingLeft: "10px" }}>
+                    Module Name
+                  </th>
                   <th>Dropdowns</th>
                   <th>Created On</th>
                   <th>Created By</th>
-                  <th>Status</th>
-                  <th>Actions</th>
+                  <th style={{ textAlign: "left", paddingLeft: "10px" }}>
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {modules.length > 0 &&
+                {modules.length > 0 ? (
                   modules.map((mod, idx) => (
-                    <tr key={mod._id}>
+                    <tr key={mod._id} className="text-center">
                       <td>{idx + 1}</td>
                       <td style={{ textAlign: "left", paddingLeft: "10px" }}>
                         {editRowId === mod._id ? (
@@ -254,20 +261,11 @@ const ModuleView = () => {
                           : "-"}
                       </td>
                       <td>{mod.createdBy || "Admin"}</td>
-                      <td>
-                        <span className="status-badge">
-                          {mod.status.charAt(0).toUpperCase() +
-                            mod.status.slice(1)}
-                        </span>
-                      </td>
-                      <td
-                        className="gap-2"
-                        style={{ textAlign: "left", paddingLeft: "10px" }}
-                      >
+                      <td className="d-flex gap-2 me-2">
                         {editRowId === mod._id ? (
                           <Button
                             variant="link"
-                            className="p-0"
+                            className="p-0 "
                             onClick={() => handleSaveEdit(mod._id)}
                           >
                             ✅
@@ -292,7 +290,14 @@ const ModuleView = () => {
                         </Button>
                       </td>
                     </tr>
-                  ))}
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={6} className="text-center text-muted py-3">
+                      No record found
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </Table>
           </div>

@@ -9,12 +9,13 @@ import "./MaterPipeline.css";
 
 // import axios from "axios";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 // PipelineItem interface defined outside to reuse
 interface CreatePipelineItem {
   _id: string;
   name: string;
-  status: string;
+  // status: string;
   createdby?: string;
   createdon: string;
   updatedAt?: string;
@@ -38,7 +39,6 @@ const MasterPipeline: React.FC = () => {
   });
   const [editRowId, setEditRowId] = useState<string | null>(null);
   const [editedName, setEditedName] = useState<string>("");
-  const [editedStatus, setEditedStatus] = useState<string>("Active");
 
   // Fetch pipelines from backend
   const fetchPipelines = async () => {
@@ -73,35 +73,41 @@ const MasterPipeline: React.FC = () => {
       [name]: value,
     }));
   };
-
   const handleSave = async () => {
-    if (!newPipeline.name.trim()) return;
+    if (!newPipeline.name.trim()) {
+      toast.error("Please Enter Pipeline name"); // show toast here
+      return;
+    }
 
     try {
       const res = await axios.post(`/api/pipeline`, {
         name: newPipeline.name,
-        status: newPipeline.status,
+        // status: newPipeline.status,
       });
 
-      setPipelineData((prev) => [...prev, res.data]); // append the newly created pipeline
+      setPipelineData((prev) => [...prev, res.data]);
       setNewPipeline({ name: "", status: "Active", noOfMod: 0 });
       setShowForm(false);
+      toast.success("Pipeline created successfully ");
     } catch (error) {
       console.error("Error creating pipeline:", error);
+      toast.error("Something went wrong while creating pipeline");
     }
   };
 
   const handleEditClick = (item: CreatePipelineItem) => {
     setEditRowId(item._id);
     setEditedName(item.name);
-    setEditedStatus(item.status);
   };
 
   const handleSaveEdit = async (id: string) => {
+    if (!editedName || editedName.trim() === "") {
+      toast.error("Please enter the pipeline name");
+      return;
+    }
     try {
       const res = await axios.patch(`/api/pipeline/${id}`, {
         name: editedName,
-        status: editedStatus,
       });
       setPipelineData((prev) =>
         prev.map((item) => (item._id === id ? res.data : item))
@@ -146,7 +152,7 @@ const MasterPipeline: React.FC = () => {
                   onChange={handleChange}
                   style={{ width: "300px", height: "45px" }}
                 />
-                <Form.Select
+                {/* <Form.Select
                   name="status"
                   value={newPipeline.status}
                   onChange={handleChange}
@@ -154,7 +160,7 @@ const MasterPipeline: React.FC = () => {
                 >
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
-                </Form.Select>
+                </Form.Select> */}
                 <Button variant="primary" onClick={handleSave}>
                   Save
                 </Button>
@@ -171,78 +177,80 @@ const MasterPipeline: React.FC = () => {
                   <th>No.of Modules</th>
                   <th>Created On</th>
                   <th>Created by</th>
-                  <th>Status</th>
+
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {pipelineData.map((item: CreatePipelineItem, idx: number) => (
-                  <tr key={item._id}>
-                    <td>{idx + 1}</td>
+                {pipelineData.length > 0 ? (
+                  pipelineData.map((item: CreatePipelineItem, idx: number) => (
+                    <tr key={item._id}>
+                      <td>{idx + 1}</td>
 
-                    {/* Editable Pipeline Name */}
-                    <td>
-                      {editRowId === item._id ? (
-                        <Form.Control
-                          type="text"
-                          value={editedName ?? ""}
-                          onChange={(e) => setEditedName(e.target.value)}
-                          style={{ width: "200px" }}
-                        />
-                      ) : (
-                        item.name
-                      )}
-                    </td>
+                      {/* Editable Pipeline Name */}
+                      <td>
+                        {editRowId === item._id ? (
+                          <Form.Control
+                            type="text"
+                            value={editedName ?? ""}
+                            onChange={(e) => setEditedName(e.target.value)}
+                            style={{ width: "200px" }}
+                          />
+                        ) : (
+                          item.name
+                        )}
+                      </td>
 
-                    {/* Non-editable Modules */}
-                    <td>{item.noOfMod}</td>
+                      {/* Non-editable Modules */}
+                      <td>{item.noOfMod}</td>
 
-                    <td>
-                      {item.createdon
-                        ? new Date(item.createdon).toLocaleDateString("en-GB") // show updated date if available
-                        : "-"}
-                    </td>
+                      <td>
+                        {item.createdon
+                          ? new Date(item.createdon).toLocaleDateString("en-GB")
+                          : "-"}
+                      </td>
 
-                    <td>{item.createdby || "Admin"}</td>
-                    <td>
-                      <span className="status-badge">{item.status}</span>
-                    </td>
+                      <td>{item.createdby || "Admin"}</td>
 
-                    {/* Actions (View, Edit, Save) */}
-                    <td className="d-flex justify-content-center gap-2">
-                      {/* View Button */}
+                      {/* Actions */}
+                      <td className="d-flex justify-content-center gap-2">
+                        {editRowId === item._id ? (
+                          <Button
+                            variant="link"
+                            className="view-btn p-0"
+                            onClick={() => handleSaveEdit(item._id)}
+                          >
+                            ✅
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="link"
+                            className=" p-0"
+                            onClick={() => handleEditClick(item)}
+                          >
+                            <FaEdit size={16} />
+                          </Button>
+                        )}
 
-                      {/* Edit / Save Button */}
-                      {editRowId === item._id ? (
                         <Button
                           variant="link"
                           className="view-btn p-0"
-                          onClick={() => handleSaveEdit(item._id)}
+                          onClick={() => handleViewClick(item._id)}
                         >
-                          ✅
+                          <span className="arrow-icon-circle">
+                            <FaArrowRight size={10} />
+                          </span>
                         </Button>
-                      ) : (
-                        <Button
-                          variant="link"
-                          className=" p-0"
-                          onClick={() => handleEditClick(item)}
-                        >
-                          <FaEdit size={16} />
-                        </Button>
-                      )}
-
-                      <Button
-                        variant="link"
-                        className="view-btn p-0"
-                        onClick={() => handleViewClick(item._id)}
-                      >
-                        <span className="arrow-icon-circle">
-                          <FaArrowRight size={10} />
-                        </span>
-                      </Button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={6} className="text-center text-muted py-3">
+                      No record found
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </Table>
           </div>
