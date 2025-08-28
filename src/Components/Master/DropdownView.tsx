@@ -28,6 +28,7 @@ const DropdownView = () => {
   const [selectedDropdownId, setSelectedDropdownId] = useState<string | null>(
     null
   );
+  const [selectedDropdownName, setSelectedDropdownName] = useState<string>("");
   const [editDropdown, setEditDropdown] = useState<DropdownData | null>(null);
 
   const [showEditForm, setShowEditForm] = useState(false);
@@ -113,8 +114,9 @@ const DropdownView = () => {
     }
   };
 
-  const handleViewClick = (dropdownId: string) => {
+  const handleViewClick = (dropdownId: string, dropdownName: string) => {
     setSelectedDropdownId(dropdownId);
+    setSelectedDropdownName(dropdownName);
     setShowModal(true);
   };
 
@@ -191,7 +193,7 @@ const DropdownView = () => {
                   <th>Created By</th>
                   <th>Status</th>
                   <th style={{ textAlign: "left", paddingLeft: "10px" }}>
-                    View & Edit
+                    Actions
                   </th>
                 </tr>
               </thead>
@@ -277,7 +279,7 @@ const DropdownView = () => {
                           variant="link"
                           className="p-0"
                           style={{ color: "black" }}
-                          onClick={() => handleViewClick(drop._id)}
+                          onClick={() => handleViewClick(drop._id, drop.name)}
                         >
                           <FaEye size={16} />
                         </Button>
@@ -301,6 +303,7 @@ const DropdownView = () => {
       {showModal && selectedDropdownId && (
         <OptionView
           dropdownId={selectedDropdownId}
+          dropdownName={selectedDropdownName}
           moduleId={moduleId!}
           pipelineId={pipelineId!}
           onClose={() => setShowModal(false)}

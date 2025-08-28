@@ -18,6 +18,7 @@ interface OptionViewProps {
   moduleId: string;
   pipelineId: string;
   onClose: () => void;
+  dropdownName: string;
 }
 
 const OptionView: React.FC<OptionViewProps> = ({
@@ -25,6 +26,7 @@ const OptionView: React.FC<OptionViewProps> = ({
   moduleId,
   pipelineId,
   onClose,
+  dropdownName,
 }) => {
   const [options, setOptions] = useState<Option[]>([]);
   const [loading, setLoading] = useState(true);
@@ -110,10 +112,45 @@ const OptionView: React.FC<OptionViewProps> = ({
     }
   };
 
+  // const handleSave = async () => {
+  //   try {
+  //     await axios.patch(`/api/dropdown/${dropdownId}`, {
+  //       options: options.map((opt) => opt.value), // ✅ only string
+  //     });
+
+  //     toast.success("Options updated successfully!");
+  //     setEditableId(null);
+  //     onClose();
+  //   } catch (error) {
+  //     console.error("Failed to save options", error);
+  //     toast.error("Failed to save changes.");
+  //   }
+  // };
+
+  // const handleSave = async () => {
+  //   try {
+  //     await axios.patch(`/api/dropdown/${dropdownId}`, {
+  //       options: options
+  //         .filter((opt) => opt.enabled) // ✅ only enabled options
+  //         .map((opt) => opt.value), // ✅ only string values
+  //     });
+
+  //     toast.success("Options updated successfully!");
+  //     setEditableId(null);
+  //     onClose();
+  //   } catch (error) {
+  //     console.error("Failed to save options", error);
+  //     toast.error("Failed to save changes.");
+  //   }
+  // };
+
   const handleSave = async () => {
     try {
       await axios.patch(`/api/dropdown/${dropdownId}`, {
-        options: options.map((opt) => opt.value), // ✅ only string
+        options: options.map((opt) => ({
+          value: opt.value,
+          enabled: opt.enabled,
+        })),
       });
 
       toast.success("Options updated successfully!");
@@ -144,7 +181,7 @@ const OptionView: React.FC<OptionViewProps> = ({
         <div className="modal-header">
           <span className="modal-title">
             Dropdown Options :{" "}
-            <span className="course-category">Course Category</span>
+            <span className="course-category">{dropdownName}</span>
           </span>
           <span className="add-option" onClick={handleAddOption}>
             + Add Option
