@@ -70,6 +70,7 @@ const AppRoute: RouteObject[] = [
         dropdownId={""}
         moduleId={""}
         pipelineId={""}
+        dropdownName={""}
         onClose={function (): void {
           throw new Error("Function not implemented.");
         }}
