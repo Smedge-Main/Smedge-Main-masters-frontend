@@ -25,7 +25,7 @@ const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
   const handleConfirm = () => {
     onConfirm();
     setToastVisible(true); // Show toast
-    onHide();              // Close modal
+    onHide(); // Close modal
 
     // Hide toast after 2 seconds
     setTimeout(() => {
@@ -53,7 +53,8 @@ const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
             onChange={(e) => setRemoveLinked(e.target.checked)}
             label={
               <span style={{ color: "red", fontSize: "14px" }}>
-                Selecting this option will remove all linked Category & Points permanently
+                Selecting this option will remove all linked Category & Points
+                permanently
               </span>
             }
             className="mb-4 d-flex justify-content-center"

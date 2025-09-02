@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./MasterNavbar.css";
 
@@ -7,18 +7,20 @@ const MasterNavbar: React.FC = () => {
   const location = useLocation();
   const [activePath, setActivePath] = useState(location.pathname);
 
+  // update activePath whenever route changes
+  useEffect(() => {
+    setActivePath(location.pathname);
+  }, [location.pathname]);
+
   const menuItems = [
     { label: "Analytics", path: "#" },
     { label: "Course Settings", path: "#" },
-    { label: "Masters", path: "/master-pipeline" }, // stays on same page
+    { label: "Masters", path: "/master-pipeline" }, // canonical path
   ];
 
   const handleClick = (item: { label: string; path: string }) => {
     if (item.path !== "#") {
       navigate(item.path);
-      setActivePath(item.path);
-    } else {
-      setActivePath("masters"); // custom for staying on same page
     }
   };
 
@@ -34,14 +36,25 @@ const MasterNavbar: React.FC = () => {
 
       <ul className="list-unstyled">
         {menuItems.map((item) => {
-          const isActive =
-            activePath === item.path ||
-            (item.label === "Masters" && activePath === "masters");
+          let isActive = false;
+
+          if (item.label === "Masters") {
+            // Masters should be active on both /master-pipeline and /pipeline/*
+            isActive =
+              activePath.startsWith("/master-pipeline") ||
+              activePath.startsWith("/pipeline");
+          } else {
+            isActive = activePath.startsWith(item.path) && item.path !== "#";
+          }
+
+          console.log(item.label, activePath, isActive);
 
           return (
             <li
               key={item.label}
-              className={`sidebar-link py-2 px-3 ${isActive ? "active" : ""}`}
+              className={`sidebar-link py-2 px-3 ${isActive ? "active" : ""} ${
+                item.path === "#" ? "disabled-link" : "clickable-link"
+              }`}
               onClick={() => handleClick(item)}
             >
               {item.label}

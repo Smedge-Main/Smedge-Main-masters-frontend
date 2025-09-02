@@ -1,11 +1,12 @@
 .master-navbar {
-  width: 230px; /* increased width */
+  width: 230px; /* default sidebar width */
   background-color: #f9f9f9;
   min-height: 100vh;
+  transition: all 0.3s ease;
 }
 
 .sidebar-link {
-  font-size: 14px; /* reduced font size */
+  font-size: 14px;
   color: #555;
   cursor: pointer;
   position: relative;
@@ -31,4 +32,93 @@
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+/* normal clickable */
+.clickable-link {
+  cursor: pointer;
+}
+
+/* unclickable */
+.disabled-link {
+  cursor: default;
+  color: #aaa;
+  pointer-events: none;
+}
+
+/* ========================= */
+/* ✅ Responsiveness */
+/* ========================= */
+
+/* Large tablets / smaller laptops */
+@media (max-width: 1024px) {
+  .master-navbar {
+    width: 200px; /* reduce width */
+  }
+  .sidebar-link {
+    font-size: 13px;
+    padding-left: 12px;
+  }
+}
+
+/* Tablets */
+@media (max-width: 768px) {
+  .master-navbar {
+    left: 0;
+    top: 260px; /* add some breathing space */
+    width: 180px;
+    height: calc(100vh - 60px); /* adjust height */
+    z-index: 999;
+    box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Mobiles */
+@media (max-width: 450px) {
+  .master-navbar {
+    position: fixed;
+    bottom: 0;
+    top: auto;
+    width: 100%;
+    height: auto;
+    min-height: unset;
+    border-top: 1px solid #ddd;
+    border-right: none;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 6px 0;
+  }
+
+  /* hide heading + dashboard back button */
+  .master-navbar h5,
+  .master-navbar .mb-3 {
+    display: none;
+  }
+
+  .list-unstyled {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    justify-content: space-around;
+    margin: 0;
+    padding: 0;
+  }
+
+  .sidebar-link {
+    font-size: 12px;
+    padding: 8px 6px;
+    text-align: center;
+  }
+
+  /* Adjust active indicator for bottom navbar */
+  .sidebar-link.active::before {
+    top: auto;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 18px;
+    height: 3px;
+    border-radius: 2px;
+  }
 }

@@ -81,20 +81,44 @@
   }
 }
 /* ✅ Tablet screens (min-width: 768px and max-width: 1024px) */
+/* ✅ Tablet view (landscape tablets, iPads) */
 @media (min-width: 768px) and (max-width: 1024px) {
   .pipeline-table {
     font-size: 14px;
+    table-layout: auto; /* let columns adjust naturally */
   }
 
   .pipeline-table th,
   .pipeline-table td {
-    padding: 10px 6px;
+    padding: 8px 6px;
   }
 
+  /* hide some less important columns to free space */
+  .pipeline-table th:nth-child(3),  /* No. of Modules */
+  .pipeline-table td:nth-child(3),
+  .pipeline-table th:nth-child(5),  /* Created By */
+  .pipeline-table td:nth-child(5) {
+    display: none;
+  }
+
+  /* action buttons fit better */
   .arrow-icon-circle {
     width: 20px;
     height: 20px;
-    font-size: 12px;
+    font-size: 11px;
+    border-width: 2px;
+  }
+
+  /* heading adjustment */
+  .master-pipeline-container h5 {
+    font-size: 1.1rem;
+  }
+
+  /* keep action buttons inline */
+  .pipeline-table tbody td:last-child {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
   }
 }
 
@@ -116,7 +140,7 @@
   .pipeline-table tbody td {
     display: flex;
     justify-content: space-between;
-    padding: 8px 0;
+    padding: 2px 0;
     border-bottom: 1px solid #eee;
   }
 

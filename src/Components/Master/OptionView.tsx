@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Button, Spinner } from "react-bootstrap";
 import "./OptionView.css";
-import { useNavigate } from "react-router-dom";
+
 import ModalWrapper from "../Common/ModalWrapper";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -11,6 +11,7 @@ interface Option {
   id: number;
   value: string;
   enabled: boolean;
+  _id?: string;
 }
 
 interface OptionViewProps {
@@ -23,8 +24,8 @@ interface OptionViewProps {
 
 const OptionView: React.FC<OptionViewProps> = ({
   dropdownId,
-  moduleId,
-  pipelineId,
+  // moduleId,
+  // pipelineId,
   onClose,
   dropdownName,
 }) => {
@@ -33,9 +34,8 @@ const OptionView: React.FC<OptionViewProps> = ({
   const [editableId, setEditableId] = useState<number | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<boolean>(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [deleteSuccess, setDeleteSuccess] = useState(false);
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   useEffect(() => {
     const fetchOptions = async () => {
@@ -47,7 +47,9 @@ const OptionView: React.FC<OptionViewProps> = ({
 
         const fetchedOptions = res.data.options.map(
           (opt: any, idx: number) => ({
-            id: idx, // unique client-side id
+            id: Date.now() + idx, // local unique id
+            _id: opt._id,
+            // id: idx, // unique client-side id
             value: typeof opt === "string" ? opt : opt.value, // backend string case handle
             enabled: typeof opt === "string" ? true : opt.enabled ?? true, // default enabled
           })
@@ -96,21 +98,21 @@ const OptionView: React.FC<OptionViewProps> = ({
     setDeleteId(id);
   };
 
-  const handleConfirmedDelete = async () => {
-    if (deleteId !== null) {
-      try {
-        await axios.delete(`/api/dropdown/${dropdownId}/option/${deleteId}`);
-        setOptions((prev) => prev.filter((_, idx) => idx !== deleteId)); // filter by index
-        toast.success("Deleted successfully!");
-      } catch (error) {
-        console.error("Failed to delete option", error);
-        toast.error("Failed to delete option.");
-      } finally {
-        setDeleteId(null);
-        setShowDeleteConfirm(false);
-      }
-    }
-  };
+  // const handleConfirmedDelete = async () => {
+  //   if (deleteId !== null) {
+  //     try {
+  //       await axios.delete(`/api/dropdown/${dropdownId}/option/${deleteId}`);
+  //       setOptions((prev) => prev.filter((_, idx) => idx !== deleteId)); // filter by index
+  //       toast.success("Deleted successfully!");
+  //     } catch (error) {
+  //       console.error("Failed to delete option", error);
+  //       toast.error("Failed to delete option.");
+  //     } finally {
+  //       setDeleteId(null);
+  //       setShowDeleteConfirm(false);
+  //     }
+  //   }
+  // };
 
   // const handleSave = async () => {
   //   try {
@@ -143,6 +145,38 @@ const OptionView: React.FC<OptionViewProps> = ({
   //     toast.error("Failed to save changes.");
   //   }
   // };
+
+  const handleConfirmedDelete = async () => {
+    if (deleteId === null) return;
+
+    const optionToDelete = options.find((opt) => opt.id === deleteId);
+
+    if (!optionToDelete) {
+      toast.error("Option not found.");
+      return;
+    }
+
+    // 🔹 If no backend _id → just remove locally
+    if (!optionToDelete._id) {
+      setOptions((prev) => prev.filter((opt) => opt.id !== deleteId));
+      toast.success("Deleted successfully!");
+    } else {
+      // 🔹 Else, delete from backend
+      try {
+        await axios.delete(
+          `/api/dropdown/${dropdownId}/option/${optionToDelete._id}`
+        );
+        setOptions((prev) => prev.filter((opt) => opt.id !== deleteId));
+        toast.success("Deleted successfully!");
+      } catch (error) {
+        console.error("Failed to delete option", error);
+        toast.error("Failed to delete option.");
+      }
+    }
+
+    setDeleteId(null);
+    setShowDeleteConfirm(false);
+  };
 
   const handleSave = async () => {
     try {
@@ -222,11 +256,21 @@ const OptionView: React.FC<OptionViewProps> = ({
                 <span className="slider round"></span>
               </label>
 
-              <span
+              {/* <span
                 className="delete-icon"
                 onClick={() => {
                   setShowDeleteConfirm(true);
                   confirmDelete(index); // ✅ index now available
+                }}
+              >
+                <i className="bi bi-trash" style={{ cursor: "pointer" }}></i>
+              </span> */}
+
+              <span
+                className="delete-icon"
+                onClick={() => {
+                  setShowDeleteConfirm(true);
+                  confirmDelete(option.id); // ✅ pass option.id, not index
                 }}
               >
                 <i className="bi bi-trash" style={{ cursor: "pointer" }}></i>

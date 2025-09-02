@@ -33,6 +33,8 @@ const DropdownView = () => {
 
   const [showEditForm, setShowEditForm] = useState(false);
   const [showDropdownForm, setShowDropdownForm] = useState(false);
+  const [dropdownError, setDropdownError] = useState("");
+  const [dropdownCharCount, setDropdownCharCount] = useState(0);
 
   const [newDropdown, setNewDropdown] = useState({
     name: "",
@@ -120,6 +122,34 @@ const DropdownView = () => {
     setShowModal(true);
   };
 
+  const handleDropdownChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
+
+    const regex = /^[A-Za-z\s]*$/; // only alphabets + space
+
+    if (!regex.test(value)) {
+      setDropdownError("Special characters and numbers are not allowed.");
+      return;
+    }
+
+    if (value.length > 30) {
+      setDropdownError("Cannot exceed 30 characters.");
+      return;
+    }
+
+    // ✅ valid
+    setDropdownError("");
+    setDropdownCharCount(value.length);
+    setNewDropdown((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
   return (
     <>
       <TopBar />
@@ -151,17 +181,42 @@ const DropdownView = () => {
           {showDropdownForm && (
             <div className="border p-3 rounded mb-4 shadow-sm bg-white">
               <h6 className="mb-3 fw-bold">Create Dropdown</h6>
-              <div className="d-flex flex-wrap gap-3 align-items-center">
-                <Form.Control
-                  type="text"
-                  placeholder="Dropdown Name"
-                  value={newDropdown.name}
-                  onChange={(e) =>
-                    setNewDropdown({ ...newDropdown, name: e.target.value })
-                  }
-                  style={{ width: "300px", height: "45px" }}
-                />
+              <div className="d-flex flex-wrap gap-3 align-items-start">
+                {/* 🟢 Wrap textbox + error vertically */}
+                <div className="d-flex flex-column">
+                  <Form.Control
+                    name="name"
+                    type="text"
+                    placeholder="Dropdown Name"
+                    value={newDropdown.name || ""}
+                    isInvalid={!!dropdownError}
+                    onChange={handleDropdownChange}
+                    style={{
+                      width: "300px",
+                      height: "45px",
+                      // borderColor: dropdownError ? "red" : "#ced4da",
+                    }}
+                  />
+                  <div className="d-flex justify-content-between">
+                    <small
+                      className="text-muted"
+                      style={{
+                        color: "#6c757d", // custom grey (Bootstrap muted grey)
+                        fontSize: "0.75rem",
+                        marginTop: "4px", // smaller font (12px approx)
+                      }}
+                    >
+                      {dropdownCharCount}/30 characters used
+                    </small>
+                  </div>
+                  {dropdownError && (
+                    <small style={{ color: "red", marginTop: "4px" }}>
+                      {dropdownError}
+                    </small>
+                  )}
+                </div>
 
+                {/* Status Select */}
                 <Form.Select
                   value={newDropdown.status}
                   onChange={(e) =>
@@ -173,6 +228,7 @@ const DropdownView = () => {
                   <option value="Inactive">Inactive</option>
                 </Form.Select>
 
+                {/* Save button */}
                 <Button variant="primary" onClick={handleSaveDropdown}>
                   Save
                 </Button>
@@ -186,9 +242,7 @@ const DropdownView = () => {
               <thead>
                 <tr className="table-header-row text-center">
                   <th style={{ width: "60px" }}>S.No</th>
-                  <th style={{ textAlign: "left", paddingLeft: "10px" }}>
-                    Dropdown Name
-                  </th>
+                  <th style={{ textAlign: "center" }}>Dropdown Name</th>
                   <th>Created On</th>
                   <th>Created By</th>
                   <th>Status</th>
@@ -205,7 +259,7 @@ const DropdownView = () => {
                       <td>{idx + 1}</td>
 
                       {/* Dropdown Name */}
-                      <td style={{ textAlign: "left", paddingLeft: "10px" }}>
+                      <td style={{ textAlign: "center" }}>
                         {editDropdown?._id === drop._id ? (
                           <Form.Control
                             type="text"

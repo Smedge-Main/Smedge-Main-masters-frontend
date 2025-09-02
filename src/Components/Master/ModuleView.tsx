@@ -31,6 +31,8 @@ const ModuleView = () => {
   const [pipelineData, setPipelineData] = useState<
     { _id: string; name: string; noOfdropdown: string }[]
   >([]);
+  const [ModuleCharCount, setModuleCharCount] = useState(0);
+  const [ModuleError, setModuleError] = useState("");
 
   const [newModule, setNewModule] = useState({
     pipeline: "",
@@ -103,6 +105,34 @@ const ModuleView = () => {
     }
   };
 
+  const handleModuleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
+
+    const regex = /^[A-Za-z\s]*$/; // alphabets + spaces only
+
+    if (!regex.test(value)) {
+      setModuleError("Special characters and numbers are not allowed.");
+      return;
+    }
+
+    if (value.length > 30) {
+      setModuleError("Cannot exceed 30 characters.");
+      return;
+    }
+
+    // ✅ valid input
+    setModuleError("");
+    setModuleCharCount(value.length);
+    setNewModule((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
   const handleSaveModule = async () => {
     if (!newModule.name) {
       toast.error("Please Enter Module name"); // validation-ku leave panirunga
@@ -167,49 +197,55 @@ const ModuleView = () => {
             {showForm && (
               <div className="border p-3 rounded mb-4 shadow-sm bg-white">
                 <h6 className="mb-3 fw-bold">Create Module</h6>
-                <div className="d-flex flex-wrap gap-3 align-items-center">
-                  {/* Pipeline Dropdown */}
-                  {/* <Form.Select
-                    value={newModule.pipeline}
-                    onChange={(e) =>
-                      setNewModule({ ...newModule, pipeline: e.target.value })
-                    }
-                    style={{ width: "250px", height: "45px" }}
-                  >
-                    <option value="" disabled hidden>
-                      Choose Pipeline
-                    </option>
-                    {pipelineData.map((p) => (
-                      <option key={p._id} value={p._id.toString()}>
-                        {p.name}
-                      </option>
-                    ))}
-                  </Form.Select> */}
+                <div className="d-flex flex-wrap gap-3 align-items-start">
+                  {/* 🟢 Wrap textbox + count + error vertically */}
+                  <div className="d-flex flex-column">
+                    <Form.Control
+                      type="text"
+                      name="name"
+                      placeholder="Module Name"
+                      value={newModule.name}
+                      isInvalid={!!ModuleError}
+                      onChange={handleModuleChange}
+                      style={{
+                        width: "300px",
+                        height: "45px",
+                        // borderColor: ModuleError ? "red" : "#ced4da",
+                      }}
+                    />
+                    <div className="d-flex justify-content-between">
+                      <small
+                        className="text-muted"
+                        style={{
+                          color: "#6c757d", // custom grey (Bootstrap muted grey)
+                          fontSize: "0.75rem",
+                          marginTop: "4px", // smaller font (12px approx)
+                        }}
+                      >
+                        {ModuleCharCount}/30 characters used
+                      </small>
+                    </div>
+                    {ModuleError && (
+                      <small style={{ color: "red", marginTop: "4px" }}>
+                        {ModuleError}
+                      </small>
+                    )}
+                  </div>
 
-                  {/* Module Name Input */}
-                  <Form.Control
-                    type="text"
-                    name="name"
-                    placeholder="Module Name"
-                    value={newModule.name}
-                    onChange={(e) =>
-                      setNewModule({ ...newModule, name: e.target.value })
-                    }
-                    style={{ width: "300px", height: "45px" }}
-                  />
-
-                  {/* Status Dropdown */}
-                  {/* <Form.Select
-                    name="status"
-                    value={newModule.status}
-                    onChange={(e) =>
-                      setNewModule({ ...newModule, status: e.target.value })
-                    }
-                    style={{ width: "200px", height: "45px" }}
-                  >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </Form.Select> */}
+                  {/* Status Dropdown (optional – uncomment if you need) */}
+                  {/* 
+      <Form.Select
+        name="status"
+        value={newModule.status}
+        onChange={(e) =>
+          setNewModule({ ...newModule, status: e.target.value })
+        }
+        style={{ width: "200px", height: "45px" }}
+      >
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+      </Form.Select>
+      */}
 
                   {/* Save Button */}
                   <Button variant="primary" onClick={handleSaveModule}>
@@ -225,9 +261,7 @@ const ModuleView = () => {
               <thead className="text-white" style={{ backgroundColor: "blue" }}>
                 <tr className="table-header-row text-center">
                   <th style={{ width: "60px" }}>S.No</th>
-                  <th style={{ textAlign: "left", paddingLeft: "10px" }}>
-                    Module Name
-                  </th>
+                  <th style={{ textAlign: "center" }}>Module Name</th>
                   <th>Dropdowns</th>
                   <th>Created On</th>
                   <th>Created By</th>
@@ -241,11 +275,11 @@ const ModuleView = () => {
                   modules.map((mod, idx) => (
                     <tr key={mod._id} className="text-center">
                       <td>{idx + 1}</td>
-                      <td style={{ textAlign: "left", paddingLeft: "10px" }}>
+                      <td>
                         {editRowId === mod._id ? (
                           <input
                             type="text"
-                            className="form-control"
+                            className="form-control text-center"
                             style={{ width: "200px" }}
                             value={editedName ?? ""}
                             onChange={(e) => setEditedName(e.target.value)}
